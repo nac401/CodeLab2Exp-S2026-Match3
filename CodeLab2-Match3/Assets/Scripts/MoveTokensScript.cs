@@ -8,43 +8,43 @@ public class MoveTokensScript : MonoBehaviour {
 
 	public bool move = false;
 	
-	[SerializeField] float lerpPercent;
-	[SerializeField] float lerpSpeed;
+	[SerializeField] private float lerpPercent;
+	[SerializeField] private float lerpSpeed;
 	bool userSwap;
 	protected GameObject exchangeToken1;
-	GameObject exchangeToken2;
+	private GameObject exchangeToken2;
 
-	Vector2 exchangeGridPos1;
-	Vector2 exchangeGridPos2;
+	private Vector2 exchangeGridPos1;
+	private Vector2 exchangeGridPos2;
 
-	public virtual void Start () { 
+	public virtual void Start () 
+	{
 		gameManager = GetComponent<GameManagerScript>();
 		matchManager = GetComponent<MatchManagerScript>();
 		lerpPercent = 0;
 	}
 	
-	public virtual void Update () {
+	public virtual void Update ()
+	{
+		//if not moving, stop
+		if (!move) return;
 		
-		if(move){
-			lerpPercent += lerpSpeed * Time.deltaTime;
-
-			if(lerpPercent >= 1){
-				lerpPercent = 1;
-			}
-
-			if(exchangeToken1 != null){ 
-				ExchangeTokens();
-			}
-		}
+		
+		//increment the lerp, stop if over 1
+		lerpPercent += lerpSpeed * Time.deltaTime;
+		if (lerpPercent >= 1) lerpPercent = 1;
+		
+		if (exchangeToken1 != null) ExchangeTokens();
 	}
 
-	public void SetupTokenMove(){
+	public void SetupTokenMove()
+	{
 		move = true;
 		lerpPercent = 0;
 	}
 
-	public void SetupTokenExchange(GameObject token1, Vector2 pos1,
-	                               GameObject token2, Vector2 pos2, bool reversable){
+	public void SetupTokenExchange(GameObject token1, Vector2 pos1, GameObject token2, Vector2 pos2, bool reversable)
+	{
 		SetupTokenMove();
 
 		exchangeToken1 = token1;
@@ -53,10 +53,10 @@ public class MoveTokensScript : MonoBehaviour {
 		exchangeGridPos1 = pos1;
 		exchangeGridPos2 = pos2;
 		
-		this.userSwap = reversable;
+		userSwap = reversable;
 	}
-	public virtual void ExchangeTokens(){
-		
+	public virtual void ExchangeTokens()
+	{
 		Vector3 startPos = gameManager.GetWorldPositionFromGridPosition((int)exchangeGridPos1.x, (int)exchangeGridPos1.y);
 		Vector3 endPos = gameManager.GetWorldPositionFromGridPosition((int)exchangeGridPos2.x, (int)exchangeGridPos2.y);
 		
@@ -66,13 +66,17 @@ public class MoveTokensScript : MonoBehaviour {
 		exchangeToken1.transform.position = movePos1;
 		exchangeToken2.transform.position = movePos2;
 		
-		if(lerpPercent >= 1){
+		if(lerpPercent >= 1)
+		{
 			gameManager.gridArray[(int)exchangeGridPos2.x, (int)exchangeGridPos2.y] = exchangeToken1;
 			gameManager.gridArray[(int)exchangeGridPos1.x, (int)exchangeGridPos1.y] = exchangeToken2;	
 			
-			if(!matchManager.GridHasMatch() && userSwap){
+			if(!matchManager.GridHasMatch() && userSwap)
+			{
 				SetupTokenExchange(exchangeToken1, exchangeGridPos2, exchangeToken2, exchangeGridPos1, false);
-			} else {
+			} 
+			else 
+			{
 				exchangeToken1 = null;
 				exchangeToken2 = null;
 				move = false;
@@ -80,29 +84,40 @@ public class MoveTokensScript : MonoBehaviour {
 		}
 	}
 
-	public virtual void MoveTokenToEmptyPos(int startGridX, int startGridY,
-	                                int endGridX, int endGridY,
-	                                GameObject token){
+	public virtual void MoveTokenToEmptyPos(int startGridX, int startGridY, int endGridX, int endGridY, GameObject token)
+	{
 		Vector3 startPos = gameManager.GetWorldPositionFromGridPosition(startGridX, startGridY);
 		Vector3 endPos = gameManager.GetWorldPositionFromGridPosition(endGridX, endGridY);
 		
 		Vector3 pos = Vector3.Lerp(startPos, endPos, lerpPercent);
 		
 		token.transform.position =	pos;
-		if(lerpPercent >= 1){ 
+		if (lerpPercent >= 1)
+		{ 
 			gameManager.gridArray[endGridX, endGridY] = token;
 			gameManager.gridArray[startGridX, startGridY] = null;
 		}
 	}
 
-	public virtual bool MoveTokensToFillEmptySpaces(){
+	public virtual bool MoveTokensToFillEmptySpaces()
+	{
 		bool movedToken = false;
-		for(int x = 0; x < gameManager.gridWidth; x++){
-			for(int y = 0; y < gameManager.gridHeight; y++){
-				if(gameManager.gridArray[x, y] == null){
-					for(int pos = y; pos < gameManager.gridHeight; pos++){ 
+		
+		//cycle through all objects in grid
+		for (int x = 0; x < gameManager.gridWidth; x++)
+		{
+			for (int y = 0; y < gameManager.gridHeight; y++)
+			{
+				//if the current slot is empty
+				if (!gameManager.gridArray[x, y])
+				{
+					//check all objects above the empty slot
+					for (int pos = y; pos < gameManager.gridHeight; pos++)
+					{ 
+						//if a token exists in this spot, move it
 						GameObject token = gameManager.gridArray[x, pos];
-						if(token != null){
+						if (token)
+						{
 							MoveTokenToEmptyPos(x, pos, x, pos - 1, token);
 							movedToken = true;
 						}
@@ -112,7 +127,8 @@ public class MoveTokensScript : MonoBehaviour {
 			}
 		}
 
-		if(lerpPercent >= 1){
+		if (lerpPercent >= 1)
+		{
 			move = false;
 			lerpPercent = 0;
 		}
