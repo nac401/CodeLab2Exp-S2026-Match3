@@ -15,7 +15,7 @@ public class GameManagerScript : MonoBehaviour {
 	protected TokenObjectPool tokenObjectPool;
 
 	public GameObject grid;
-	public  GameObject[,] gridArray;
+	public GameObject[,] gridArray;
 	GameObject selected;
 	
 	
@@ -30,7 +30,8 @@ public class GameManagerScript : MonoBehaviour {
 		MakeGrid();
 	}
 
-	public virtual void Update(){
+	public virtual void Update()
+	{
 		if(!GridHasEmpty()){
 			if(matchManager.GridHasMatch()){
 				RemoveAllMatchTokens(matchManager.GetAllMatchTokens());
@@ -41,17 +42,15 @@ public class GameManagerScript : MonoBehaviour {
 		} 
 		else 
 		{
-			if(!moveTokenManager.move){
-				moveTokenManager.SetupTokenMove();
-			}
 			
-			if(!moveTokenManager.MoveTokensToFillEmptySpaces()){
-				repopulateManager.AddNewTokensToRepopulateGrid();
-			}
+			if(!moveTokenManager.move) moveTokenManager.SetupTokenMove();
+			
+			if(!moveTokenManager.MoveTokensToFillEmptySpaces()) repopulateManager.AddNewTokensToRepopulateGrid();
 		} 
 	}
 	
-	void MakeGrid() {
+	void MakeGrid() 
+	{
 		grid = new GameObject("TokenGrid"); 
 		for(int x = 0; x < gridWidth; x++){
 			for(int y = 0; y < gridHeight; y++){
@@ -60,7 +59,8 @@ public class GameManagerScript : MonoBehaviour {
 		}
 	}
 	
-	public virtual void RemoveAllMatchTokens(List<GameObject> removeTokens){
+	public virtual void RemoveAllMatchTokens(List<GameObject> removeTokens)
+	{
 		for(int x = 0; x < gridWidth; x++){
 			for(int y = 0; y < gridHeight ; y++){
 				if(removeTokens.Contains(gridArray[x, y])){
@@ -71,7 +71,8 @@ public class GameManagerScript : MonoBehaviour {
 		}
 	}
 
-	public virtual bool GridHasEmpty(){
+	public virtual bool GridHasEmpty()
+	{
 		for(int x = 0; x < gridWidth; x++){
 			for(int y = 0; y < gridHeight ; y++){
 				if(gridArray[x, y] == null){
@@ -83,7 +84,8 @@ public class GameManagerScript : MonoBehaviour {
 		return false;
 	}
 
-	public Vector2 GetPositionOfTokenInGrid(GameObject token){
+	public Vector2 GetPositionOfTokenInGrid(GameObject token)
+	{
 		for(int x = 0; x < gridWidth; x++){
 			for(int y = 0; y < gridHeight ; y++){
 				if(gridArray[x, y] == token){
@@ -94,13 +96,15 @@ public class GameManagerScript : MonoBehaviour {
 		return new Vector2();
 	}
 		
-	public Vector2 GetWorldPositionFromGridPosition(int x, int y){
+	public Vector2 GetWorldPositionFromGridPosition(int x, int y)
+	{
 		return new Vector2(
 			(x - gridWidth/2) * tokenSize,
 			(y - gridHeight/2) * tokenSize);
 	}
 
-	public void AddTokenToPosInGrid(int x, int y, GameObject parent){
+	public void AddTokenToPosInGrid(int x, int y, GameObject parent)
+	{
 		Vector3 position = GetWorldPositionFromGridPosition(x, y);
 		GameObject token = tokenObjectPool.GetToken(position);
 			// Instantiate(tokenTypes[Random.Range(0, tokenTypes.Length)], 
