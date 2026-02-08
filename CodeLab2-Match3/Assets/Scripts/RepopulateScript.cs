@@ -1,20 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class RepopulateScript : MonoBehaviour {
-	
-	protected GameManagerScript gameManager;
+public sealed class RepopulateScript : MonoBehaviour 
+{
+	private GameManagerScript gameManager;
 
-	public virtual void Start () {
+	public void Start () 
+	{
 		gameManager = GetComponent<GameManagerScript>();
 	}
 
-	public virtual void AddNewTokensToRepopulateGrid(){
-		for(int x = 0; x < gameManager.gridWidth; x++){ 
+	public void AddNewTokensToRepopulateGrid()
+	{
+		//loop through each column on the grid
+		for (int x = 0; x < gameManager.gridWidth; x++)
+		{ 
+			//add a token to empty spots at the top of the grid
 			GameObject token = gameManager.gridArray[x, gameManager.gridHeight - 1];
-			if(token == null){
-				gameManager.AddTokenToPosInGrid(x, gameManager.gridHeight - 1, gameManager.grid); 
-			}
+			if (!token) gameManager.AddTokenToPosInGrid(x, gameManager.gridHeight - 1, gameManager.grid); 
 		}
 	}
 }
